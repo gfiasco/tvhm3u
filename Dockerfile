@@ -1,9 +1,7 @@
 FROM python:3
-
-
+MAINTAINER Gian Luca Fiasco <glf@lucacloud.info>
 
 ADD TVHm3u /opt/TVHm3u
-ADD requirements.txt /opt/
 
 WORKDIR /opt/
 RUN pip install requests
