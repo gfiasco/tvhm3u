@@ -1,2 +1,3 @@
 config.py
 TVHm3u/config.py
+*.pyc
