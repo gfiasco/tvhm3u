@@ -1,0 +1,9 @@
+version: '3'
+
+services:
+  tvhm3u:
+    build: .
+    volumes:
+      - ./config.py:/opt/TVhm3u/config.py:ro
+    ports:
+      - 7878:7878

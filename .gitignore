@@ -1,3 +1,5 @@
 config.py
 TVHm3u/config.py
 *.pyc
+__pycache__
+.mypy_cache
