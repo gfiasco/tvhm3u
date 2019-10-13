@@ -3,7 +3,10 @@ version: '3'
 services:
   tvhm3u:
     build: .
-    volumes:
-      - ./config.py:/opt/TVhm3u/config.py:ro
     ports:
       - 7878:7878
+    environment:
+      - TVH_HOST=192.168.1.137
+      - TVH_PORT=9981
+      - TVH_USER=test
+      - TVH_PASS='12345'

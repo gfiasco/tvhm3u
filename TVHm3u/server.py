@@ -1,8 +1,7 @@
 
-from http.server import BaseHTTPRequestHandler, HTTPServer
+from http.server import BaseHTTPRequestHandler
 from .TVAuthProxy import TVHm3u
-from .config import *
-import logging
+from .config import TVH_HOST, TVH_USER, TVH_PORT, TVH_PASS
 
 M3U = TVHm3u(TVH_HOST, TVH_PORT, TVH_USER, TVH_PASS)
 
@@ -18,7 +17,7 @@ class web_server(BaseHTTPRequestHandler):
                 self.end_headers()
                 self.wfile.write(response)
                 self.log_message('tvh m3u returned with success')
-            except:
+            except ConnectionRefusedError:
                 self.log_message("FAILED TO OBTAIN M3U")
         elif self.path == '/xmltv':
             response = M3U.get_xmltv()
@@ -28,9 +27,8 @@ class web_server(BaseHTTPRequestHandler):
             print(response)
             self.wfile.write(response)
         elif self.path == '/favicon.ico':
-            #expected just do nothing no time for creating icon
+            # expected just do nothing no time for creating icon
             pass
         else:
-            self.log_message("URL {} NOT FOUND".format(self.path))
-            self.send_error(404,'Not found')
-
+            self.log_message(f"URL {self.path} NOT FOUND")
+            self.send_error(404, 'Not found')
