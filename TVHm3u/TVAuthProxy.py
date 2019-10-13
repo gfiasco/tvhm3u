@@ -2,6 +2,7 @@
 
 import requests
 from requests.auth import HTTPBasicAuth
+from typing import Union
 
 
 class TVHm3u:
@@ -13,7 +14,12 @@ class TVHm3u:
     """
 
     def __init__(
-            self, TVH_HOST: str, TVH_PORT: int, TVH_USER: str, TVH_PASS: str):
+            self,
+            TVH_HOST: str,
+            TVH_PORT: Union[str, int],
+            TVH_USER: str,
+            TVH_PASS: str
+    ) -> None:
         self.tvh_host = TVH_HOST
         self.tvh_port = TVH_PORT
         self.tvh_url = f'http://{TVH_HOST}:{TVH_PORT}'
@@ -47,10 +53,8 @@ class TVHm3u:
         self.error(response, __name__)
         return response.content
 
-    def _get_playlist(self):
-        """
-            get default tvheadend playlist
-        """
+    def _get_playlist(self) -> str:
+        """ get default tvheadend playlist """
         playlist_url = f'{self.tvh_url}/playlist/channels.m3u'
         auth = HTTPBasicAuth(self.tvh_user, self.tvh_pass)
         response = requests.get(playlist_url, auth=auth)
