@@ -40,7 +40,7 @@ class web_server(BaseHTTPRequestHandler):
             self.send_response(200)
             self.send_header('Content-type', 'text/xml')
             self.end_headers()
-            print(response)
+            self.log_message('xmltv epg returned with success')
             self.wfile.write(response)
         elif self.path == '/favicon.ico':
             # expected just do nothing no time for creating icon

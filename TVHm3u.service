@@ -1,0 +1,11 @@
+[Unit]
+Description=TVH Proxy Basic Authentication
+
+[Service]
+Environment=
+WorkingDirectory=/home/tvhm3u
+ExecStart=python3 -m TVHm3u
+Restart=always
+
+[Install]
+WantedBy=multi-user.target
