@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 
 import requests
+import re
 from requests.auth import HTTPBasicAuth
 from typing import Union
 
@@ -36,10 +37,10 @@ class TVHm3u:
         new_m3u = ""
         for line in m3u.split('\n'):
             if line.startswith(self.tvh_url):
-                new_m3u += line.replace(
-                    self.tvh_url,
-                    f'http://{self.tvh_user}:{self.tvh_pass}' +
-                    f'@{self.tvh_host}:{self.tvh_port}'
+                new_m3u += re.sub(
+                    "^http://",
+                    f'http://{self.tvh_user}:{self.tvh_pass}',
+                    line
                 ) + '\n'
             else:
                 new_m3u += line + '\n'
