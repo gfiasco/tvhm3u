@@ -1,6 +1,6 @@
 
 from http.server import BaseHTTPRequestHandler
-from .config import TOKEN
+from .config import TOKEN, NAT
 
 
 class web_server(BaseHTTPRequestHandler):
@@ -32,6 +32,8 @@ class web_server(BaseHTTPRequestHandler):
         except ValueError:
             uri, token = (self.path, '')
 
+        self.nat = self.headers['Host'].split(':')[0] if NAT is True else None
+
         if uri == '/':
             self.send_response(200)
             self.send_header('Content-type', 'text/html')
@@ -39,7 +41,7 @@ class web_server(BaseHTTPRequestHandler):
             self.wfile.write(self.usage())
         elif (uri, self.is_valid(token)) == ('/playlist', True):
             try:
-                response = self.M3U.get_m3u()
+                response = self.M3U.get_m3u(self.nat)
                 self.send_response(200)
                 self.send_header('Content-type', 'audio/x-mpegurl')
                 self.end_headers()

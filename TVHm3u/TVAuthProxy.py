@@ -1,7 +1,6 @@
 #!/usr/bin/env python3
 
 import requests
-import re
 from requests.auth import HTTPBasicAuth
 from typing import Union
 
@@ -23,7 +22,7 @@ class TVHm3u:
     ) -> None:
         self.tvh_host = TVH_HOST
         self.tvh_port = TVH_PORT
-        self.tvh_url = f'http://{TVH_HOST}:{TVH_PORT}'
+        self.tvh_url = f'{TVH_HOST}:{TVH_PORT}'
         self.tvh_user = TVH_USER
         self.tvh_pass = TVH_PASS
 
@@ -32,15 +31,16 @@ class TVHm3u:
             raise ConnectionRefusedError(
                 'TVH service seems unreachable: {target}')
 
-    def get_m3u(self) -> bytes:
+    def get_m3u(self, nat_address=None) -> bytes:
         m3u = self._get_playlist()
+        url = nat_address or self.tvh_url
         new_m3u = ""
         for line in m3u.split('\n'):
-            if line.startswith(self.tvh_url):
-                new_m3u += re.sub(
-                    "^http://",
-                    f'http://{self.tvh_user}:{self.tvh_pass}',
-                    line
+            if line.startswith(f'http://{self.tvh_url}'):
+                new_m3u += line.replace(
+                    f'http://{self.tvh_url}',
+                    f'http://{self.tvh_user}:{self.tvh_pass}' +
+                    f'@{url}:{self.tvh_port}'
                 ) + '\n'
             else:
                 new_m3u += line + '\n'
@@ -56,7 +56,7 @@ class TVHm3u:
 
     def _get_playlist(self) -> str:
         """ get default tvheadend playlist """
-        playlist_url = f'{self.tvh_url}/playlist/channels.m3u'
+        playlist_url = f'http://{self.tvh_url}/playlist/channels.m3u'
         auth = HTTPBasicAuth(self.tvh_user, self.tvh_pass)
         response = requests.get(playlist_url, auth=auth)
         self.error(response, __name__)

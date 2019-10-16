@@ -10,7 +10,7 @@ logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
 
-def main():
+def run():
     # setting up
     m3u = TVHm3u(TVH_HOST, TVH_PORT, TVH_USER, TVH_PASS)
     address, port = ('', 7878)
@@ -19,12 +19,13 @@ def main():
         address, port),
         lambda *args, **kwargs: web_server(m3u, *args, **kwargs)
     )
-    serve.serve_forever()
+    try:
+        serve.serve_forever()
+    except KeyboardInterrupt:
+        logging.info('shutting down...')
+        serve.server_close()
+        exit(0)
 
 
 if __name__ == "__main__":
-    try:
-        main()
-    except KeyboardInterrupt:
-        print('shutting down')
-        exit(0)
+    run()
