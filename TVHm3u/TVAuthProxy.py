@@ -48,7 +48,7 @@ class TVHm3u:
         return str.encode(new_m3u)
 
     def get_xmltv(self) -> bytes:
-        playlist_url = f'{self.tvh_url}/xmltv'
+        playlist_url = f'http://{self.tvh_url}/xmltv'
         auth = HTTPBasicAuth(self.tvh_user, self.tvh_pass)
         response = requests.get(playlist_url, auth=auth)
         self.error(response, __name__)
