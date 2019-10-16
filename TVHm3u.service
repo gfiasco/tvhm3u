@@ -3,6 +3,7 @@ Description=TVH Proxy Basic Authentication
 
 [Service]
 Environment=
+EnvironmentFile=
 WorkingDirectory=/home/tvhm3u
 ExecStart=python3 -m TVHm3u
 Restart=always
