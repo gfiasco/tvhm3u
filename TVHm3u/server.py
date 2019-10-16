@@ -1,16 +1,17 @@
 
 from http.server import BaseHTTPRequestHandler
-from .TVAuthProxy import TVHm3u
-from .config import TVH_HOST, TVH_USER, TVH_PORT, TVH_PASS
-
-M3U = TVHm3u(TVH_HOST, TVH_PORT, TVH_USER, TVH_PASS)
+from .config import TOKEN
 
 
 class web_server(BaseHTTPRequestHandler):
 
+    def __init__(self, m3u, request, client_address, server):
+        self.M3U = m3u
+        super().__init__(request, client_address, server)
+
     def usage(self):
         html = '<html><body>'
-        html += f'<h1>TVHm3u HOME PAGE {TVH_HOST} on {TVH_PORT}/tcp</h1>'
+        html += f'<h1>TVHm3u HOME PAGE</h1>'
         html += '<h2>Entry Points:</h1>'
         html += '<p><b>/playlist</b> will return m3u file list of channels</p>'
         html += '<p><b>/xmltv</b> will return the EPG</p>'
@@ -18,33 +19,45 @@ class web_server(BaseHTTPRequestHandler):
         html += '</body></html>'
         return str.encode(html)
 
+    def is_valid(self, token: str):
+        self.log_message('Verifying Token')
+        if len(token) < 6:
+            return False
+        return token == TOKEN
+
     def do_GET(self):
 
-        if self.path == '/':
+        try:
+            uri, token = self.path.replace('token=', '').split('&')
+        except ValueError:
+            uri, token = (self.path, '')
+
+        if uri == '/':
             self.send_response(200)
             self.send_header('Content-type', 'text/html')
             self.end_headers()
             self.wfile.write(self.usage())
-        elif self.path == '/playlist':
+        elif (uri, self.is_valid(token)) == ('/playlist', True):
             try:
-                response = M3U.get_m3u()
+                response = self.M3U.get_m3u()
                 self.send_response(200)
                 self.send_header('Content-type', 'audio/x-mpegurl')
                 self.end_headers()
                 self.wfile.write(response)
                 self.log_message('tvh m3u returned with success')
-            except ConnectionRefusedError:
+            except ConnectionRefusedError or ConnectionError:
                 self.log_message("FAILED TO OBTAIN M3U")
-        elif self.path == '/xmltv':
-            response = M3U.get_xmltv()
+                self.send_error(500)
+        elif (uri, self.is_valid(token)) == ('/xmltv', True):
+            response = self.M3U.get_xmltv()
             self.send_response(200)
             self.send_header('Content-type', 'text/xml')
             self.end_headers()
             self.log_message('xmltv epg returned with success')
             self.wfile.write(response)
-        elif self.path == '/favicon.ico':
+        elif uri == '/favicon.ico':
             # expected just do nothing no time for creating icon
             pass
         else:
-            self.log_message(f"URL {self.path} NOT FOUND")
+            self.log_message(f"URL {uri} NOT FOUND")
             self.send_error(404, 'Not found')
